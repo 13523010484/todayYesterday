@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <title>获取日期：今天、昨天、本周、上周、本月、上月</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="select-date-wrap">
+    <label>
+        <select class="select-date">
+
+        </select>
+        <input type="date" placeholder="请选择日期">-<input type="date" placeholder="请选择日期">
+    </label>
+</div>
+<script>
+
+    const optionsArr = [
+        {
+            id: 0,
+            value: '今天'
+        },
+        {
+            id: 1,
+            value: '昨天'
+        },
+        {
+            id: 2,
+            value: '本周'
+        },
+        {
+            id: 3,
+            value: '上周'
+        },
+        {
+            id: 4,
+            value: '本月'
+        },
+        {
+            id: 5,
+            value: '上月'
+        }
+    ];
+    const selectDate = document.querySelector('.select-date');
+
+    optionsArr.forEach(item => {//动态设置select的option值
+        selectDate.add(new Option(item.value, item.id));
+    });
+
+    //获取今天
+    const date = new Date();
+    const nowYear = date.getFullYear();//当前年
+    const nowMonth = date.getMonth() + 1;//当前月
+    const nowDay = date.getDate();//当前日
+    const nowDayOfWeek = date.getDay();//当前星期几
+    const formatNumber = (num) => {
+        num = num.toString();
+        return num[1] ? num : '0' + num;
+    };
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return [year, month, day].map(formatNumber).join('-');
+    };
+    const getDateTimestamp = (date) => {//某一天的时间戳
+        return new Date(date).getTime();
+    };
+    const today = formatDate(new Date());//今天
+    const yesterday = formatDate(new Date(getDateTimestamp(today) - 86400000));//昨天
+    const nowWeekStartDate = new Date(nowYear, nowMonth - 1, nowDay - nowDayOfWeek + 1);//本周开始时间
+    const nowWeekEndDate = new Date(new Date(nowWeekStartDate).getTime() + 6 * 86400000);//本周结束时间
+    const inputsDate = document.querySelectorAll('input[type=date]');
+
+
+    inputsDate[0].value = today;
+    inputsDate[1].value = today;
+
+
+    document.querySelector('.select-date').addEventListener('change', (e) => {
+        const options = e.target.options;
+        switch (options.selectedIndex) {
+            case 0://今天
+                inputsDate[0].value = today;
+                inputsDate[1].value = today;
+                break;
+            case 1://昨天
+                inputsDate[0].value = yesterday;
+                inputsDate[1].value = yesterday;
+                break;
+            case 2://本周
+                inputsDate[0].value = formatDate(nowWeekStartDate);//本周开始日期
+                inputsDate[1].value = formatDate(nowWeekEndDate);//本周结束日期
+                break;
+            case 3://上周
+                const lastWeekStartDate = new Date(getDateTimestamp(nowWeekStartDate) - 7 * 86400000);
+                inputsDate[0].value = formatDate(lastWeekStartDate);//上周开始日期
+
+                const lastWeekEndDate = new Date(getDateTimestamp(nowWeekStartDate) - 86400000);
+                inputsDate[1].value = formatDate(lastWeekEndDate);//上周开始日期
+                break;
+            case 4://本月
+                const nowMonthStartDate = new Date(nowYear, nowMonth - 1, 1);
+                inputsDate[0].value = formatDate(nowMonthStartDate);//本月开始日期
+
+                const nowMonthEndDate = new Date(nowYear, nowMonth, 0);
+                inputsDate[1].value = formatDate(nowMonthEndDate);//本月结束日期
+                break;
+            default://上月
+                const lastMonthStartDate = new Date(nowYear, nowMonth - 2, 1);
+                inputsDate[0].value = formatDate(lastMonthStartDate);//上月开始日期
+
+                const lastMonthEndDate = new Date(nowYear, nowMonth - 1, 0);
+                inputsDate[1].value = formatDate(lastMonthEndDate);//上月结束日期
+        }
+    });
+
+
+</script>
+</body>
+</html>
